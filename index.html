@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Salary Calculator</title>
+  <style>
+    :root {
+      --primary: #007bff;
+      --background: #f0f2f5;
+      --text: #212529;
+      --card: #fff;
+      --radius: 12px;
+      --shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+      --transition: all 0.3s ease;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: var(--background);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      color: var(--text);
+      direction: rtl;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 700px;
+      background: var(--card);
+      margin: 50px auto;
+      padding: 30px 40px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      transition: transform 0.3s ease;
+    }
+
+    .container:hover {
+      transform: translateY(-5px);
+    }
+
+    h2 {
+      text-align: center;
+      color: var(--primary);
+      margin-bottom: 30px;
+      font-size: 1.8rem;
+    }
+
+    label {
+      display: block;
+      margin-top: 20px;
+      font-weight: bold;
+      font-size: 1rem;
+    }
+
+    input,
+    textarea,
+    button {
+      width: 100%;
+      padding: 12px 15px;
+      margin-top: 8px;
+      font-size: 1rem;
+      border: 1px solid #ced4da;
+      border-radius: 8px;
+      outline: none;
+      transition: var(--transition);
+    }
+
+    input:focus,
+    textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+    }
+
+    button {
+      background-color: var(--primary);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      margin-top: 25px;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    #result,
+    #report {
+      margin-top: 25px;
+    }
+
+    #result p {
+      margin: 8px 0;
+    }
+
+    #result b {
+      color: var(--primary);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 120px;
+    }
+
+    .copy-btn {
+      margin-top: 15px;
+      background-color: #6c757d;
+      transition: background-color 0.3s ease;
+    }
+
+    .copy-btn:hover {
+      background-color: #5a6268;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>💼 Salary Calculator 💰</h2>
+
+    <label for="startDate">📅 بداية يوم العمل:</label>
+    <input type="date" id="startDate" placeholder="يرجى اختيار تاريخ بدء العمل" />
+
+    <label for="endDate">📅 نهاية يوم العمل:</label>
+    <input type="date" id="endDate" placeholder="يرجى اختيار تاريخ نهاية العمل" />
+
+    <label for="hoursPerDay">🕓 عدد ساعات العمل في اليوم:</label>
+    <input type="number" id="hoursPerDay" min="0" step="0.1" placeholder="أدخل عدد الساعات التي تعملها يومياً" />
+
+    <label for="extraHours">🕒 عدد ساعات العمل الإضافي:</label>
+    <input type="number" id="extraHours" min="0" step="0.1" placeholder="أدخل عدد الساعات الإضافية إن وجدت" />
+
+    <label for="hourRate">💵 تكلفة الساعة بالدولار:</label>
+    <input type="number" id="hourRate" min="0" step="0.1" placeholder="أدخل قيمة الساعة بالدولار الأمريكي" />
+
+    <button onclick="calculateSalary()">Calculate Salary 💰</button>
+
+    <div id="result"></div>
+
+    <label for="report">📋 التقرير النهائي:</label>
+    <textarea id="report" rows="6" readonly placeholder="سيظهر هنا ملخص الراتب المحسوب بعد إدخال البيانات بشكل صحيح..."></textarea>
+
+    <button onclick="copyReport()" class="copy-btn">📎 انسخ التقرير</button>
+  </div>
+
+  <script>
+    function formatDate(dateString) {
+      const options = { day: 'numeric', month: 'numeric' };
+      const date = new Date(dateString);
+      return date.toLocaleDateString('ar-EG') || date.toLocaleDateString(); 
+    }
+  
+    function calculateSalary() {
+      const startDate = document.getElementById("startDate").value;
+      const endDate = document.getElementById("endDate").value;
+      const hoursPerDay = parseFloat(document.getElementById("hoursPerDay").value);
+      const extraHours = parseFloat(document.getElementById("extraHours").value) || 0;
+      const hourRate = parseFloat(document.getElementById("hourRate").value);
+  
+      if (!startDate || !endDate || isNaN(hoursPerDay) || isNaN(hourRate)) {
+        alert("يرجى تعبئة جميع الحقول المطلوبة بطريقة صحيحة.");
+        return;
+      }
+  
+      const startDateObj = new Date(startDate);
+      const endDateObj = new Date(endDate);
+      const dayDiff = Math.floor((endDateObj - startDateObj) / (1000 * 60 * 60 * 24)) + 1;
+  
+      if (dayDiff < 0) {
+        alert("تاريخ النهاية يجب أن يكون بعد أو مساوٍ لتاريخ البداية.");
+        return;
+      }
+  
+      const baseHours = dayDiff * hoursPerDay;
+      const totalHours = baseHours + extraHours;
+      const totalSalary = totalHours * hourRate;
+  
+      const start = formatDate(startDate);
+      const end = formatDate(endDate);
+  
+      document.getElementById("result").innerHTML = `
+        <p><b>📆 عدد أيام العمل:</b> ${dayDiff} يوم</p>
+        <p><b>🕓 عدد الساعات الأساسية:</b> ${baseHours} ساعة</p>
+        <p><b>➕ الساعات الإضافية:</b> ${extraHours} ساعة</p>
+        <p><b>⏱️ إجمالي عدد الساعات:</b> ${totalHours} ساعة</p>
+        <p><b>💵 الراتب الكلي:</b> $${totalSalary.toFixed(2)}</p>
+        <p><b>📅 الفترة:</b> من ${start} إلى ${end}</p>
+      `;
+  
+      document.getElementById("report").value = `عدد الأيام: ${dayDiff} يوم\nبدأت من  ${start}\nانتهت في ${end}\nفي عدد  ${hoursPerDay} ساعة في اليوم\nالساعات الإضافية ${extraHours} ساعة\nالمجموع الكلي للساعات ${totalHours} ساعة\nسعر الساعة $${hourRate}\nالراتب الكلي $${totalSalary.toFixed(2)}`;
+    }
+  
+    function copyReport() {
+      const report = document.getElementById("report");
+      report.select();
+      document.execCommand("copy");
+      alert("✅ تم نسخ التقرير بنجاح!");
+    }
+  </script>
+</body>
+</html>
