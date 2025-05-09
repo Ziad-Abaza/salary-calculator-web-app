@@ -1,1 +1,33 @@
 
+name: Deploy to GoogieHost
+
+on:
+  push:
+    branches: [main] # يتم التشغيل عند push إلى فرع main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install Composer dependencies
+        run: |
+          composer install --no-dev --optimize-autoloader
+
+      - name: Upload files via FTP
+        uses: SamKirkland/FTP-Deploy-Action@4.3.0
+        with:
+          server: ftp.googiehost.com # استبدله ببيانات FTP الخاصة بك
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./ # المسار المحلي للملفات
+          server-dir: /domains/omeralgamel.xyz/public_html/ # المسار على الخادم (تأكد من المسار الصحيح)
+          exclude: |
+            .git*
+            .env
+            node_modules/
+            tests/
+            .github/
